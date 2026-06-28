@@ -1,19 +1,641 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>ViralScreen Final Patch</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ote Jalaludin</title>
+<meta property="og:title" content="ViralScreen">
+<meta property="og:type" content="website">
+<meta property="og:description" content="Discover trending movies and TV shows">
+<meta name="description" content="Watch trending movies, TV shows and popular people.">
+<meta name="theme-color" content="#0f172a">
+<link rel="preconnect" href="https://image.tmdb.org">
+<link rel="preconnect" href="https://api.themoviedb.org">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial,sans-serif;
+    background:#0f172a;
+    color:#fff;
+}
+
+.navbar{
+    display:flex;
+    gap:20px;
+    padding:15px;
+    background:#020617;
+    position:sticky;
+    top:0;
+    z-index:100;
+}
+
+.navbar a{
+    color:white;
+    text-decoration:none;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.container{
+    padding-bottom:30px;
+}
+
+.hero{
+    height:350px;
+    background:url('https://icungsilet.github.io/kdsbkw/hyu.png') center/cover;
+    display:flex;
+    align-items:center;
+}
+
+.hero-overlay{
+    width:100%;
+    padding:40px;
+    background:linear-gradient(to right,rgba(0,0,0,.85),rgba(0,0,0,.2));
+}
+
+.hero h1{
+    font-size:40px;
+    margin-bottom:10px;
+}
+
+.hero p{
+    margin-bottom:20px;
+}
+
+.search-box{
+    display:flex;
+    background:#fff;
+    border-radius:30px;
+    overflow:hidden;
+    max-width:600px;
+}
+
+.search-box input{
+    flex:1;
+    border:none;
+    padding:12px;
+    outline:none;
+}
+
+.search-box button{
+    border:none;
+    padding:0 20px;
+    background:#00bcd4;
+    color:white;
+    cursor:pointer;
+}
+
+.section{
+    margin-top:25px;
+}
+
+.section h2{
+    padding:0 20px;
+    margin-bottom:15px;
+}
+
+.row{
+    display:flex;
+    overflow-x:auto;
+    gap:15px;
+    padding:20px;
+    scroll-behavior:smooth;
+    content-visibility:auto;
+}
+
+.row::-webkit-scrollbar{
+    display:none;
+}
+  
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+    gap:15px;
+    padding:0 20px;
+}
+
+.card{
+    background:#1e293b;
+    border-radius:10px;
+    overflow:hidden;
+    cursor:pointer;
+    transition:.2s;
+}
+.footer{
+    margin-top:40px;
+    padding:25px;
+    text-align:center;
+    background:#020617;
+    color:#94a3b8;
+    font-size:14px;
+    border-top:1px solid #1e293b;
+}
+
+.footer p{
+    margin:5px 0;
+}
+.card:hover{
+    transform:scale(1.03);
+}
+
+.card img{
+    width:100%;
+    display:block;
+}
+
+.card h4{
+    padding:10px;
+    font-size:14px;
+}
+
+.card p{
+    padding:0 10px 10px;
+    color:#cbd5e1;
+}
+
+.loading{
+    text-align:center;
+    padding:40px;
+}
+  
+@media(max-width:768px){
+
+.hero{
+  height:250px;
+}
+
+.hero h1{
+  font-size:28px;
+}
+
+.grid{
+  grid-template-columns:
+  repeat(auto-fill,minmax(130px,1fr));
+}
+
+}  
+</style>
+
 </head>
+
 <body>
-<h2>ViralScreen - Final Patch Notes</h2>
-<ul>
-<li>Fixed openDetail() declaration.</li>
-<li>Fixed Search button markup.</li>
-<li>Removed redirect before openDetail().</li>
-<li>Added recommendation to handle person details separately.</li>
-<li>Recommended replacing history.back() with loadMovies().</li>
-<li>Recommended safer image placeholder.</li>
-</ul>
-<p>Apply these fixes to your main HTML source.</p>
+
+<div class="navbar">
+    <a href="#" onclick="loadMovies()">🎬 Film</a>
+    <a href="#" onclick="loadTV()">📺 TV</a>
+    <a href="#" onclick="loadPeople()">👤 People</a>
+</div>
+
+<div id="app"></div>
+
+<script>
+
+const API = "https://vxz.megadon8787.workers.dev";
+const AD  = "https://www.effectivecpmnetwork.com/bpyh2n3u1?key=365cd9a5147798a9f666011d6cbcd8f0";
+
+const cache = {};
+  
+function goAd(){
+    window.location.href = AD;
+}
+
+function loading(){
+    document.getElementById("app").innerHTML =
+        '<div class="loading">Loading...</div>';
+}
+
+async function safeFetch(url){
+
+    if(cache[url]){
+        return cache[url];
+    }
+
+    try{
+
+        const res = await fetch(url);
+
+        if(!res.ok) return null;
+
+        const data = await res.json();
+
+        cache[url] = data;
+
+        return data;
+
+    }catch(err){
+
+        return null;
+
+    }
+}
+function getImage(path){
+    return path
+        ? "https://image.tmdb.org/t/p/w342" + path
+        : "https://via.placeholder.com/300x450?text=No+Image";
+}
+
+function renderHero(){
+    return `
+    <div class="hero">
+        <div class="hero-overlay">
+            <h1>Welcome to ViralScreen Ote Jalaludin</h1>
+            <p>Millions of movies, TV shows and people to discover.</p>
+
+            <div class="search-box">
+                <input
+                    id="searchInput"
+                    type="text"
+                    placeholder="Search movie..."
+                >
+                <button onclick="searchMovie()">
+                    Search
+                </button>
+            </div>
+        </div>
+    </div>
+    `;
+}
+
+function renderTrending(data){
+    return `
+    <div class="section">
+        <h2>🔥 Trending</h2>
+
+        <div class="row">
+        ${data.map(item=>`
+            <div class="card"
+                 onclick="openDetail(${item.id},'movie')"
+                 style="min-width:180px">
+
+                <img
+    loading="lazy"
+    decoding="async"
+    src="${getImage(item.poster_path)}"
+>
+</div>
+`).join("")}
+</div>
+</div>
+    `;
+}
+
+function render(title,data,type="movie"){
+
+    return `
+    <div class="section">
+
+        <h2>${title}</h2>
+
+        <div class="grid">
+
+        ${data.map(item=>{
+
+            const img =
+                item.poster_path ||
+                item.profile_path;
+
+            return `
+            <div class="card"
+                 onclick="openDetail(${item.id},'${type}')">
+
+                <img
+    loading="lazy"
+    decoding="async"
+    src="${getImage(img)}"
+>
+
+                <h4>
+                    ${item.title || item.name || "Unknown"}
+                </h4>
+
+                <p>
+                    ⭐ ${item.vote_average || "-"}
+                </p>
+
+            </div>
+            `;
+        }).join("")}
+
+        </div>
+
+    </div>
+    `;
+}
+
+function renderRow(title,data,type="movie"){
+
+    return `
+    <div class="section">
+
+        <h2>${title}</h2>
+
+        <div class="row">
+
+        ${data.map(item=>`
+
+            <div
+                class="card"
+                onclick="openDetail(${item.id},'${type}')"
+                style="min-width:180px">
+
+                <img
+                    loading="lazy"
+                    decoding="async"
+                    src="${getImage(item.poster_path)}"
+                >
+
+                <h4>
+                    ${item.title || item.name}
+                </h4>
+
+            </div>
+
+        `).join("")}
+
+        </div>
+
+    </div>
+    `;
+}
+
+async function searchMovie(){
+
+    const q =
+        document.getElementById("searchInput")
+        .value
+        .trim();
+
+    if(!q){
+        return;
+    }
+
+    loading();
+
+    const result =
+        await safeFetch(
+            API +
+            "/search/movie?query=" +
+            encodeURIComponent(q)
+        );
+
+    document.getElementById("app").innerHTML =
+        render("🔍 Search Result",
+               result?.results || [],
+               "movie");
+}
+
+async function openDetail(id,type="movie"){
+
+    loading();
+
+    const [data, popular, top, upcoming] = await Promise.all([
+        safeFetch(API + "/" + type + "/" + id),
+        safeFetch(API + "/movie/popular"),
+        safeFetch(API + "/movie/top_rated"),
+        safeFetch(API + "/movie/upcoming")
+    ]);
+
+    if(!data){
+        goAd();
+        return;
+    }
+
+    document.getElementById("app").innerHTML = `
+    
+<div style="padding:20px">
+
+    <h2 style="margin-bottom:15px">
+        ${data.title || data.name}
+    </h2>
+
+    <img
+    loading="lazy"
+    decoding="async"
+    src="${getImage(data.poster_path || data.profile_path)}"
+        style="
+        width:250px;
+        max-width:100%;
+        border-radius:10px;
+        margin-bottom:15px;
+        "
+    >
+
+    <div style="
+    display:flex;
+    gap:15px;
+    background:#1e293b;
+    padding:10px;
+    border-radius:8px;
+    margin-bottom:15px;
+    font-size:14px;
+    ">
+        <span>⭐ ${data.vote_average || "-"}</span>
+        <span>📅 ${data.release_date || "-"}</span>
+    </div>
+    
+<p style="margin-top:10px;color:#cbd5e1">
+    ⭐ Rating: ${Number(data.vote_average || 0).toFixed(1)}/10
+</p>
+
+    <p style="line-height:1.6">
+        ${data.overview || "No description available"}
+    </p>
+
+        <br>
+
+        <button
+            onclick="goAd()"
+            style="
+            background:black;
+            color:white;
+            border:none;
+            padding:15px 25px;
+            border-radius:10px;
+            font-size:18px;
+            cursor:pointer;
+            ">
+            ▶ Watch Now
+        </button>
+
+        <br><br>
+
+        <button
+            onclick="history.back()"
+            style="
+            background:black;
+            color:white;
+            border:none;
+            padding:15px 25px;
+            border-radius:10px;
+            font-size:18px;
+            cursor:pointer;
+            ">
+            ◀︎ Back
+        </button>
+        
+<br><br>
+
+${renderRow(
+    "🔥 Popular Movies",
+    popular?.results?.slice(0,10) || [],
+    "movie"
+)}
+
+${renderRow(
+    "⭐ Top Rated",
+    top?.results?.slice(0,10) || [],
+    "movie"
+)}
+
+${renderRow(
+    "🎬 Upcoming",
+    upcoming?.results?.slice(0,10) || [],
+    "movie"
+)}
+
+
+    </div>
+    `;
+}
+
+async function loadMovies(){
+
+    loading();
+
+    const [now, upcoming, top] = await Promise.all([
+    safeFetch(API + "/movie/now_playing"),
+    safeFetch(API + "/movie/upcoming"),
+    safeFetch(API + "/movie/top_rated")
+]);
+
+    if(!now && !upcoming && !top){
+
+        document.getElementById("app").innerHTML = `
+        <div style="padding:20px">
+
+            <h2>⚠ Server Busy</h2>
+
+            <br>
+
+            <button onclick="goAd()">
+                ▶ Watch Now
+            </button>
+
+        </div>
+        `;
+        return;
+    }
+
+    document.getElementById("app").innerHTML =
+        renderHero() +
+        renderTrending(now?.results?.slice(0,10) || []) +
+        render("🔥 Now Playing",
+       now?.results?.slice(0,12) || [],
+       "movie") +
+        render("🎬 Upcoming",
+               upcoming?.results?.slice(0,12) || [],
+               "movie") +
+        render("⭐ Top Rated",
+               top?.results?.slice(0,12) || [],
+               "movie");
+}
+
+async function loadTV(){
+
+    loading();
+
+    const [airing,onair,top] = await Promise.all([
+    safeFetch(API + "/tv/airing_today"),
+    safeFetch(API + "/tv/on_the_air"),
+    safeFetch(API + "/tv/top_rated")
+]);
+
+    document.getElementById("app").innerHTML =
+        render("📺 Airing Today",
+       airing?.results?.slice(0,12) || [],
+       "tv") +
+
+        render("📡 On The Air",
+       onair?.results?.slice(0,12) || [],
+       "tv") +
+
+        render("⭐ Top Rated TV",
+       top?.results?.slice(0,12) || [],
+       "tv");
+}
+
+async function loadPeople(){
+
+    loading();
+
+    const people =
+        await safeFetch(API + "/person/popular");
+
+    document.getElementById("app").innerHTML =
+        render("🔥 Popular People",
+       people?.results?.slice(0,12) || [],
+       "person");
+}
+
+document.addEventListener("keypress", e=>{
+    if(e.key==="Enter"){
+        const input = document.getElementById("searchInput");
+
+        if(input && input===document.activeElement){
+            searchMovie();
+        }
+    }
+});
+
+loadMovies();
+
+</script>
+
+<div style="width:100%;text-align:center;margin:10px 0;">
+    <script type="text/javascript">
+      atOptions = {
+        'key' : '4e9bccda8be457bccf82fabadf33d690',
+        'format' : 'iframe',
+        'height' : 50,
+        'width' : 320,
+        'params' : {}
+      };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/4e9bccda8be457bccf82fabadf33d690/invoke.js"></script>
+</div>
+
+<footer class="footer">
+  <h3>🎬 ViralScreen Ote Jalaludin</h3>
+  <p>Discover trending movies, TV shows and popular celebrities.</p>
+
+  <div class="footer-links">
+      <a href="https://megadon8787-sudo.github.io/about/"target="_blank"rel="noopener">About</a>
+      <a href="https://megadon8787-sudo.github.io/privacy/"target="_blank"rel="noopener">Privacy Policy</a>
+      <a href="https://megadon8787-sudo.github.io/terms/"target="_blank"rel="noopener">Terms</a>
+      <a href="https://megadon8787-sudo.github.io/contact/"target="_blank"rel="noopener">Contact</a>
+  </div>
+
+  <p class="copyright">
+      © 2026 ViralScreen Ote Jalaludin
+  </p>
+</footer>
+<script src="https://pl26681020.effectivecpmnetwork.com/f2/1d/de/f21dde81de625579f54d8478363ea3ed.js"></script>
+
+<script type="text/javascript">var _Hasync= _Hasync|| [];
+_Hasync.push(['Histats.start', '1,5026796,4,9,110,60,00010000']);
+_Hasync.push(['Histats.fasi', '1']);
+_Hasync.push(['Histats.track_hits', '']);
+(function() {
+var hs = document.createElement('script'); hs.type = 'text/javascript'; hs.async = true;
+hs.src = ('//s10.histats.com/js15_as.js');
+(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(hs);
+})();</script>
+<noscript><a href="/" target="_blank"><img  src="//sstatic1.histats.com/0.gif?5026796&101" alt="" border="0"></a></noscript>
 </body>
 </html>
